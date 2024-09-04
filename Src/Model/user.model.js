@@ -26,6 +26,9 @@ const userSchema = mongoose.Schema({
         type: Date,
         
     },
+    isConfirmed:{
+        type:Boolean,
+    },
     isDelete: {
         type: Boolean,
         default: false

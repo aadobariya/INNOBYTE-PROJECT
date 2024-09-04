@@ -1,14 +1,14 @@
 const express = require('express');
 const userRoute = express.Router();
-const {userVerifyToken} = require('../Helpers/userVerifyToken');
-const userController = require("../Controller/user.controller");
+const {userVerifyToken} = require('../helpers/userVerifyToken');
+const userController = require("../controller/user.controller");
 
 const {
      signupUser,
      loginUser,
      getUserProfile,
      verifyOtp
-} = require("../Controller/user.controller");
+} = require("../controller/user.controller");
 
 // Register user
 userRoute.post('/signup' , signupUser);

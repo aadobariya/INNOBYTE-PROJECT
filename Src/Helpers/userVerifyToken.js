@@ -1,4 +1,4 @@
-const User = require('../Model/user.model');
+const User = require('../model/user.model');
 const jwt = require('jsonwebtoken');
 
 // USER VERIFY TOKEN
@@ -13,7 +13,7 @@ exports.userVerifyToken = async(req, res, next) => {
        if (token === undefined) {
            return res.status(401).json({ message: `Unauthorize ${console.error()}`})
        }else{
-            let {userId} = jwt.verify(token, 'User');
+            let {userId} = jwt.verify(token, process.env.KEY);
             // console.log(userId);
             let user = await User.findById(userId);
             // console.log(user);

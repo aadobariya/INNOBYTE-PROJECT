@@ -6,7 +6,7 @@ const app = express();                                                       // 
 app.use(express.json());
 const port = process.env.PORT;                                               // Create Port
 
-const userRoute = require('./Src/Routes/user.route');
+const userRoute = require('./src/routes/user.route');
 app.use('/api', userRoute);
 
 app.listen( port , async () => {

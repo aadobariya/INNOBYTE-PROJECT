@@ -1,9 +1,10 @@
-const UserServices = require("../Service/user.service");
+const UserServices = require("../services/user.service");
 const userService = new UserServices();
 const jwt = require("jsonwebtoken");
 const bcrypt = require("bcrypt");
 const crypto = require("crypto");
-const { mailMessage } = require("../Helpers/mail");
+const { mailMessage } = require("../helpers/mail");
+require('dotenv').config();
 
 // Register User
 exports.signupUser = async (req, res) => {
@@ -13,15 +14,14 @@ exports.signupUser = async (req, res) => {
     if (user) {
       res.status(400).json({ message: "User Already Registered..." });
     }
+
     let hashpassword = await bcrypt.hash(req.body.password, 10);
-    // let token = jwt.sign( {email : req.body.email} , "User");
-    // console.log(token);
-    // res.status(201).json({ token, message: "User  SuccessFully..." });
+    
     const otp = crypto.randomInt(100000, 999999);
 
-    // Set OTP expiration time to 1 hour from now
+    // Set OTP expiration time to 10 min from now
      const otpExpires = new Date(Date.now() + 600000);
-    // console.log(hashpassword);
+    
     user = await userService.addNewUser({
       ...req.body,
       password: hashpassword,
@@ -46,18 +46,23 @@ exports.signupUser = async (req, res) => {
     <title>Email Confirmation</title>
 </head>
 <body>
-    <h2>Thank you for registering...!</h2>
-    <p>Please confirm your email by clicking the link below:</p>
-    <a href="${confirmationLink}">Confirm your email</a>
-    <h3>${otp}</h3>
-    <p>This OTP will expire in 10 Minites.</p>
+    <h1>Sing-up email code</h1>
+    <h2 style="color: #1f2937; font-size: 20px; font-weight: bold;">Hello...</h2>
+    <h2 style="color: #1f2937; font-size: 16px; font-weight: bold;">Thank you for Registering...!</h2>
+    <p style="color: #4b5563; font-size: 16px;">Please confirm your email by clicking the link below:</p>
+    <a href="${confirmationLink}" style="display: inline-block; margin-top: 20px; padding: 10px 20px; background-color: #3b82f6; color: #ffffff; text-decoration: none; border-radius: 4px;">Confirm your email</a>
+    <p style="color: #4b5563; font-size: 16px;">Please click the below link and conform your registration. </p>
+
+    <h3 style="margin-top: 30px; color: #1f2937; font-size: 20px;">Your OTP : ${otp}</h3>
+    <p style="color: #4b5563; font-size: 16px;">This code is valid for 10 minutes. Don't share the code with anyone.</p>
+    
 </body>
 </html>
 `,
     };
 
     await mailMessage(confirmationMail);
-    res.status(201).json({ user, message : "User Registered SuccessFully...Please check your email to confirm your account." });
+    res.status(201).json({ user , message : "User Registered SuccessFully...Please check your email to confirm your account." });
   } catch (error) {
     console.log(error);
     res.status(500).json({ message: `Internal Server Error..${console.error()}` });
@@ -67,23 +72,21 @@ exports.signupUser = async (req, res) => {
 // Login User
 exports.loginUser = async (req, res) => {
   try {
-    let user = await userService.getUser({ email: req.body.email });
+    let user = await userService.getUser({email: req.body.email});
     // console.log(user);
     if (!user) {
-      res.status(400).json({ message: "Email Not Found..." });
+      return res.status(400).json({ message: `Email Not Found...` });
     }
-    let checkpassword = await bcrypt.compare(req.body.password, user.password);
-    // console.log(checkpassword);
-    if (!checkpassword) {
-      res.status(400).json({ message: "Password Not Match..." });
+    let checkPassword = await bcrypt.compare(req.body.password, user.password);
+    if (!checkPassword) {
+      return res.status(401).json({ message: `Password Not Match...` });
     }
-    let token = jwt.sign( {userId: req.body._id} , "User");
-    res.status(201).json({token, message: `User login successfully... `})
-    
+    let token = jwt.sign({ userId: user._id }, prosee.env.KEY);
+    console.log(token);
+    res.status(200).json({ token, message: `User Login SuccesFully..` });
   } catch (error) {
     console.log(error);
-    res .status(500)
-      .json({ message: `Internal Server Error..${console.error()}` });
+    res.status(500).json({ message: `Internal Server Error...${console.error()}` });
   }
 };
 
